@@ -7,6 +7,8 @@
 #define LECTURA   "rb"
 #define ESCRITURA "wb"
 
+#define HEADER_SIZE 512
+
 typedef unsigned char Byte;
 
 // Toma 2 bytes y una máscara. La máscara tambiénde debe ser un byte.

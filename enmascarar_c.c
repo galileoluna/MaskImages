@@ -8,7 +8,7 @@ void enmascarar_c(Byte *a, Byte *b, Byte *mask, int cant) {
 
   FILE *output = fopen(NOMBRE_SALIDA, ESCRITURA);
   
-  for( int i = 0; i < cant; i++ )
+  for( int i = HEADER_SIZE; i < cant; i++ )
     *(a + i) = transformar_byte(*(a + i), *(b + i), *(mask + i));
 
   fwrite(a, 1, cant, output);
