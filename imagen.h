@@ -13,4 +13,8 @@ typedef unsigned char Byte;
 // Si la máscara es igual a NEGRO devuelve la primera imagen, sino la segunda.
 Byte transformar_byte(Byte, Byte, Byte);
 
+// Devuelve el tamaño del archivo en bytes y deja el cursor en el principio
+// del stream.
+long int fsize(FILE*);
+
 #endif

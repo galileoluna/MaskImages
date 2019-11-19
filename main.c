@@ -1,8 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include "imagen.h"
 
 void enmascarar_c(Byte*, Byte*, Byte*, int);
+
+static clock_t inicio_c, fin_c, inicio_asm, fin_asm;
+static double total_c = 0, total_asm = 0;
 
 /* Recibe 3 argumentos del usuario desde la línea de comandos:
    arg1: imagen1
@@ -38,33 +42,48 @@ int main( int argc, char *argv[] ) {
     exit(1);
   }
 
-  fseek(imagen1, 0, SEEK_END);
-  long int size = ftell(imagen1);
-  fseek(imagen1, 0, SEEK_SET);
+  long int imagen1_size = fsize(imagen1);
+  long int imagen2_size = fsize(imagen2);
+  long int mascara_size = fsize(mascara);
+  if( imagen1_size != imagen2_size | imagen1_size != mascara_size ) {
+    fprintf(stderr, "Las imágenes no tienen el mismo tamaño.\n");
+    exit(1);
+  }
 
-  /* TODO: verificar que todas las imágenes sean del mismo tamaño */
-
-  Byte buff_imagen1[size];
-  Byte buff_imagen2[size];
-  Byte buff_mascara[size];
+  Byte buff_imagen1[imagen1_size];
+  Byte buff_imagen2[imagen1_size];
+  Byte buff_mascara[imagen1_size];
   
-  size_t total = fread(buff_imagen1, 1, size, imagen1);
+  fread(buff_imagen1, 1, imagen1_size, imagen1);
   fclose(imagen1);
 
-  size_t totalI2 = fread(buff_imagen2, 1, size, imagen2);
+  fread(buff_imagen2, 1, imagen1_size, imagen2);
   fclose(imagen2);
 
-  size_t totalMascara = fread(buff_mascara, 1, size, mascara);
+  fread(buff_mascara, 1, imagen1_size, mascara);
   fclose(mascara);
 
-  /* TODO: medir tiempo que tarda la siguiente función en ejecutarse */
-  enmascarar_c(buff_imagen1, buff_imagen2, buff_mascara, (int) size);
+
+  inicio_c = clock();
+  enmascarar_c(buff_imagen1, buff_imagen2, buff_mascara, (int) imagen1_size);
+  fin_c = clock();
+  total_c = (double) (fin_c - inicio_c) / CLOCKS_PER_SEC;
 
   /* Acá estaría el llamado a la otra función:
+  inicio_asm = clock();
   enmascarar_asm(buff_imagen1, buff_imagen2, buff_mascara, (int) size);
+  fin_asm = clock();
+  total_asm = (double) (fin_asm - inicio_asm) / CLOCKS_PER_SEC;
   */
 
   // tamaño, tiempo_c, tiempo_asm
-  fprintf(stdout, "%d, %d, %d\n", size, 0, 0);
+  fprintf(stdout, "%d, %f, %f\n", imagen1_size, total_c, total_asm);
 
+}
+
+long int fsize(FILE *p) {
+  fseek(p, 0, SEEK_END);
+  long int size = ftell(p);
+  fseek(p, 0, SEEK_SET);
+  return size;
 }
