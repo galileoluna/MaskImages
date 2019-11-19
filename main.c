@@ -15,13 +15,19 @@ static double total_c = 0, total_asm = 0;
 */
 int main( int argc, char *argv[] ) {
   if( argc != 4 ) {
-    fprintf(stderr, "Cantidad de argumentos incorrecta.\n");
+    fprintf(stderr, "Cantidad de argumentos incorrecta. arg1=imagen1, arg2=imagen2, arg3=mascara.\n");
     exit(1);
   }
 
   FILE *imagen1;
   FILE *imagen2;
   FILE *mascara;
+  Byte *buff_imagen1;
+  Byte *buff_imagen2;
+  Byte *buff_mascara;
+  long int imagen1_size;
+  long int imagen2_size;
+  long int mascara_size;
   
   imagen1 = fopen(argv[1], LECTURA);
   imagen2 = fopen(argv[2], LECTURA);
@@ -31,38 +37,35 @@ int main( int argc, char *argv[] ) {
     fprintf(stderr, "Imagen 1 no encontrada.\n");
     exit(1);
   }
-
   if( imagen2 == NULL ) {
     fprintf(stderr, "Imagen 2 no encontrada.\n");
     exit(1);
   }
-
   if( mascara == NULL ) {
     fprintf(stderr, "Máscara no encontrada.\n");
     exit(1);
   }
 
-  long int imagen1_size = fsize(imagen1);
-  long int imagen2_size = fsize(imagen2);
-  long int mascara_size = fsize(mascara);
+  imagen1_size = fsize(imagen1);
+  imagen2_size = fsize(imagen2);
+  mascara_size = fsize(mascara);
+
   if( imagen1_size != imagen2_size | imagen1_size != mascara_size ) {
     fprintf(stderr, "Las imágenes no tienen el mismo tamaño.\n");
     exit(1);
   }
-
-  Byte buff_imagen1[imagen1_size];
-  Byte buff_imagen2[imagen1_size];
-  Byte buff_mascara[imagen1_size];
   
+  buff_imagen1 = (Byte *) malloc(imagen1_size);
+  buff_imagen2 = (Byte *) malloc(imagen2_size);
+  buff_mascara = (Byte *) malloc(mascara_size);
+
   fread(buff_imagen1, 1, imagen1_size, imagen1);
+  fread(buff_imagen2, 1, imagen2_size, imagen2);
+  fread(buff_mascara, 1, mascara_size, mascara);
+
   fclose(imagen1);
-
-  fread(buff_imagen2, 1, imagen1_size, imagen2);
   fclose(imagen2);
-
-  fread(buff_mascara, 1, imagen1_size, mascara);
   fclose(mascara);
-
 
   inicio_c = clock();
   enmascarar_c(buff_imagen1, buff_imagen2, buff_mascara, (int) imagen1_size);
