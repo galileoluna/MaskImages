@@ -3,6 +3,9 @@
 #include <time.h>
 #include "imagen.h"
 
+#define SALIDA_C   "salida_c.rgb"
+#define SALIDA_ASM "salida_asm.rgb"
+
 void enmascarar_c(Byte*, Byte*, Byte*, int);
 
 static clock_t inicio_c, fin_c, inicio_asm, fin_asm;
@@ -22,6 +25,8 @@ int main( int argc, char *argv[] ) {
   FILE *imagen1;
   FILE *imagen2;
   FILE *mascara;
+  FILE *output_c;
+  FILE *output_asm;
   Byte *buff_imagen1;
   Byte *buff_imagen2;
   Byte *buff_mascara;
@@ -67,15 +72,21 @@ int main( int argc, char *argv[] ) {
   fclose(imagen2);
   fclose(mascara);
 
+  output_c = fopen(SALIDA_C, ESCRITURA);
   inicio_c = clock();
   enmascarar_c(buff_imagen1, buff_imagen2, buff_mascara, (int) imagen1_size);
   fin_c = clock();
+  fwrite(buff_imagen1, 1, (int) imagen1_size, output_c);
+  fclose(output_c);
   total_c = (double) (fin_c - inicio_c) / CLOCKS_PER_SEC;
 
   /* Acá estaría el llamado a la otra función:
+  output_asm = fopen(SALIDA_ASM, ESCRITURA);
   inicio_asm = clock();
   enmascarar_asm(buff_imagen1, buff_imagen2, buff_mascara, (int) size);
   fin_asm = clock();
+  fwrite(buff_imagen1, 1, (int) imagen1_size, output_asm);
+  fclose(output_asm);
   total_asm = (double) (fin_asm - inicio_asm) / CLOCKS_PER_SEC;
   */
 
