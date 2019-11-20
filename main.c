@@ -1,24 +1,27 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 #include "imagen.h"
-
-#define SALIDA_C   "salida_c.rgb"
-#define SALIDA_ASM "salida_asm.rgb"
 
 void enmascarar_c(Byte*, Byte*, Byte*, int);
 
 static clock_t inicio_c, fin_c, inicio_asm, fin_asm;
 static double total_c = 0, total_asm = 0;
+static char SALIDA_C[] = "salida_c";
+static char SALIDA_ASM[] = "salida_asm";
+static char RGB[] = ".rgb";
 
 /* Recibe 3 argumentos del usuario desde la línea de comandos:
    arg1: imagen1
    arg2: imagen2
    arg3: mascara
+   arg4: ancho
+   arg5: alto
 */
 int main( int argc, char *argv[] ) {
-  if( argc != 4 ) {
-    fprintf(stderr, "Cantidad de argumentos incorrecta. arg1=imagen1, arg2=imagen2, arg3=mascara.\n");
+  if( argc != 6 ) {
+    fprintf(stderr, "Cantidad de argumentos incorrecta. arg1=imagen1, arg2=imagen2, arg3=mascara, arg4=ancho, arg5=alto.\n");
     exit(1);
   }
 
@@ -33,6 +36,8 @@ int main( int argc, char *argv[] ) {
   long int imagen1_size;
   long int imagen2_size;
   long int mascara_size;
+  char string_buff_c[30];
+  char string_buff_asm[30];
   
   imagen1 = fopen(argv[1], LECTURA);
   imagen2 = fopen(argv[2], LECTURA);
@@ -51,6 +56,18 @@ int main( int argc, char *argv[] ) {
     exit(1);
   }
 
+  strcpy(string_buff_c, SALIDA_C);
+  strcat(string_buff_c, argv[4]);
+  strcat(string_buff_c, "x");
+  strcat(string_buff_c, argv[5]);
+  strcat(string_buff_c, RGB);  
+
+  strcpy(string_buff_asm, SALIDA_ASM);
+  strcat(string_buff_asm, argv[4]);
+  strcat(string_buff_asm, "x");
+  strcat(string_buff_asm, argv[5]);
+  strcat(string_buff_asm, RGB);
+  
   imagen1_size = fsize(imagen1);
   imagen2_size = fsize(imagen2);
   mascara_size = fsize(mascara);
@@ -72,7 +89,7 @@ int main( int argc, char *argv[] ) {
   fclose(imagen2);
   fclose(mascara);
 
-  output_c = fopen(SALIDA_C, ESCRITURA);
+  output_c = fopen(string_buff_c, ESCRITURA);
   inicio_c = clock();
   enmascarar_c(buff_imagen1, buff_imagen2, buff_mascara, (int) imagen1_size);
   fin_c = clock();
@@ -81,9 +98,9 @@ int main( int argc, char *argv[] ) {
   total_c = (double) (fin_c - inicio_c) / CLOCKS_PER_SEC;
 
   /* Acá estaría el llamado a la otra función:
-  output_asm = fopen(SALIDA_ASM, ESCRITURA);
+  output_asm = fopen(string_buff_asm, ESCRITURA);
   inicio_asm = clock();
-  enmascarar_asm(buff_imagen1, buff_imagen2, buff_mascara, (int) size);
+  enmascarar_asm(buff_imagen1, buff_imagen2, buff_mascara, (int) imagen1_size);
   fin_asm = clock();
   fwrite(buff_imagen1, 1, (int) imagen1_size, output_asm);
   fclose(output_asm);
