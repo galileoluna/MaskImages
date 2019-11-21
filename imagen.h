@@ -17,6 +17,6 @@ Byte transformar_byte(Byte, Byte, Byte);
 
 // Devuelve el tamaño del archivo en bytes y deja el cursor en el principio
 // del stream.
-long int fsize(FILE*);
+int fsize(FILE*);
 
 #endif
