@@ -5,7 +5,8 @@ section .text
 
 enmascarar_asm:
     push ebp     
-    mov ebp, esp 
+	mov ebp, esp
+	push ebx
     mov eax, 0
     mov ebx, 0
     mov ecx, 0
@@ -37,7 +38,8 @@ enmascarar_asm:
         movd [ebx], mm1
         loop _mmxLoop
     
-    emms
+	emms
+	pop ebx
     mov esp, ebp 
     pop ebp 
         

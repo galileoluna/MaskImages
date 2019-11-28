@@ -5,7 +5,7 @@
 #include "imagen.h"
 
 void enmascarar_c(Byte*, Byte*, Byte*, int);
-//extern void enmascarar_asm(Byte*, Byte*, Byte*, int);
+void enmascarar_asm(Byte*, Byte*, Byte*, int);
 
 static clock_t inicio_c, fin_c, inicio_asm, fin_asm;
 static double total_c = 0, total_asm = 0;
@@ -60,21 +60,21 @@ int main( int argc, char *argv[] ) {
   strcat(string_buff_c, "x");
   strcat(string_buff_c, argv[5]);
   strcat(string_buff_c, RGB);  
-  /*
+  
   strcpy(string_buff_asm, SALIDA_ASM);
   strcat(string_buff_asm, argv[4]);
   strcat(string_buff_asm, "x");
   strcat(string_buff_asm, argv[5]);
   strcat(string_buff_asm, RGB);
-  */
+  
   buff_imagen1_c1 = (Byte *) malloc(imagen_size);
-  //buff_imagen1_c2 = (Byte *) malloc(imagen_size);
+  buff_imagen1_c2 = (Byte *) malloc(imagen_size);
   buff_imagen2 = (Byte *) malloc(imagen_size);
   buff_mascara = (Byte *) malloc(imagen_size);
 
   fread(buff_imagen1_c1, 1, imagen_size, imagen1);
-  //fseek(imagen1, 0, SEEK_SET);
-  //fread(buff_imagen1_c2, 1, imagen_size, imagen1);
+  fseek(imagen1, 0, SEEK_SET);
+  fread(buff_imagen1_c2, 1, imagen_size, imagen1);
   fread(buff_imagen2, 1, imagen_size, imagen2);
   fread(buff_mascara, 1, imagen_size, mascara);
 
@@ -86,26 +86,26 @@ int main( int argc, char *argv[] ) {
   enmascarar_c(buff_imagen1_c1, buff_imagen2, buff_mascara,  imagen_size);
   fin_c = clock();
   
-  //inicio_asm = clock();
-  //enmascarar_asm(buff_imagen1_c2, buff_imagen2, buff_mascara, imagen_size);
-  //fin_asm = clock();  
+  inicio_asm = clock();
+  enmascarar_asm(buff_imagen1_c2, buff_imagen2, buff_mascara, imagen_size);
+  fin_asm = clock();  
 
   free(buff_imagen2);
   free(buff_mascara);
 
   total_c   = (double) (fin_c - inicio_c)     / CLOCKS_PER_SEC;
-  //total_asm = (double) (fin_asm - inicio_asm) / CLOCKS_PER_SEC;
+  total_asm = (double) (fin_asm - inicio_asm) / CLOCKS_PER_SEC;
   
   output = fopen(string_buff_c, ESCRITURA);
   fwrite(buff_imagen1_c1, 1, imagen_size, output);
   fclose(output);
 
-  //output = fopen(string_buff_asm, ESCRITURA);
-  //fwrite(buff_imagen1_c2, 1, imagen_size, output);
-  //fclose(output);
+  output = fopen(string_buff_asm, ESCRITURA);
+  fwrite(buff_imagen1_c2, 1, imagen_size, output);
+  fclose(output);
 
   free(buff_imagen1_c1);
-  //free(buff_imagen1_c2);
+  free(buff_imagen1_c2);
 
   // tamaño, tiempo_c, tiempo_asm
   fprintf(stdout, "%d, %f, %f\n", imagen_size, total_c, total_asm);
