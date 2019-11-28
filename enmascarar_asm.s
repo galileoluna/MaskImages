@@ -1,16 +1,10 @@
-%include "io.inc"
-
 section .data
-
+ ;
 section .text
-    global _enmascarar_asm    
+    global enmascarar_asm    
 
-_enmascarar_asm:
-    push ebp
-    push eax
-    push ebx
-    push ecx
-    push edx    
+enmascarar_asm:
+    push ebp     
     mov ebp, esp 
     mov eax, 0
     mov ebx, 0
@@ -18,34 +12,33 @@ _enmascarar_asm:
     mov edx, 0
     xor edx, edx
     mov eax, dword[ebp+20]
-    add ebx, 8
+    add ebx, 4
     div ebx
     mov ecx, eax
-   _mmxLoop:
+    _mmxLoop:
         mov eax, ecx
-        mov ebx, 8
+        mov ebx, 4
         mul ebx
-        sub eax, 8
+        sub eax, 4
         mov ebx,[ebp+8]
         add ebx, eax
         movd mm0 ,[ebx]
         mov ebx, [ebp+12]
         add ebx, eax
         movd mm1,[ebx]
-    _mmxMask:
         mov ebx, [ebp+16]
         add ebx, eax
         movd mm2,[ebx]
-
-        pand mm1, mm2   
-        pand mm2, mm0  
-        por mm1, mm2    
-        mov ebx, [ebp+8] ; img1
+        pand mm1, mm2 
+        pandn mm2, mm0
+        por mm1, mm2  
+        mov ebx, [ebp+8] 
         add ebx, eax
         movd [ebx], mm1
-        loop mmxLoop
-    _Endmmx:
-    emms 
+        loop _mmxLoop
+    
+    emms
     mov esp, ebp 
     pop ebp 
-    ret
+        
+ret
